@@ -1,0 +1,50 @@
+Sub Tach_Sheets()
+Dim Lr&, i&, j&, k&, Arr(), Res(1 To 100000, 1 To 17)
+Dim Dic As Object, Key$, Ws As Worksheet, Rng As Range
+Set Dic = CreateObject("Scripting.Dictionary")
+Application.DisplayAlerts = False
+Application.ScreenUpdating = False
+For Each Ws In Worksheets
+If Ws.Name <> "Sheet1" Then
+Ws.Delete
+End If
+Next Ws
+With Sheets("Sheet1")
+Set Rng = .Range("A1:Q1")
+Lr = .Range("A" & Rows.Count).End(xlUp).Row
+Arr = .Range("A2:Q" & Lr).Value
+For i = 1 To UBound(Arr)
+If Arr(i, 6) <> "" Then
+Key = Arr(i, 6)
+If Not Dic.exists(Key) Then
+Dic.Add (Key), ""
+Worksheets.Add after:=Sheets(Sheets.Count)
+ActiveSheet.Name = Key
+End If
+End If
+Next i
+For Each Ws In Worksheets
+If Ws.Name <> "Sheet1" Then
+For i = 1 To UBound(Arr)
+If Arr(i, 6) = Ws.Name Then
+k = k + 1
+For j = 1 To 17
+Res(k, j) = Arr(i, j)
+Next j
+End If
+Next i
+End If
+If k Then
+Rng.Copy Ws.Range("A1")
+Ws.Range("A2").Resize(k, 17).Value = Res
+Ws.Range("A1").CurrentRegion.Borders.LineStyle = 1
+Ws.Columns("A:Q").AutoFit
+k = 0
+End If
+Next Ws
+End With
+Set Dic = Nothing
+Application.ScreenUpdating = True
+Application.DisplayAlerts = True
+MsgBox "Done"
+End Sub
